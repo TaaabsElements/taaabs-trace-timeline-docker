@@ -1,0 +1,39 @@
+{
+  "name": "taaabs-trace-timeline-docker",
+  "version": "0.1.0",
+  "description": "A graphical element bundling several trace timeline tools.",
+  "keywords": [
+    "web-components",
+    "polymer",
+    "taaabs"
+  ],
+  "authors": [
+    "Rémi Casado"
+  ],
+  "repository": {
+   "type": "git",
+   "url": "https://github.com/TaaabsElements/taaabs-trace-timeline-docker.git"
+  },
+  "main": "taaabs-trace-timeline-docker.html",
+  "license": "https://github.com/TaaabsElements/taaabs-trace-timeline-docker/LICENSE",
+  "dependencies": {
+    "polymer": "polymer/polymer#^1.0.0",
+    "app-localize-behavior": "PolymerElements/app-localize-behavior",
+    "iron-pages": "PolymerElements/iron-pages",
+    "iron-icons": "PolymerElements/iron-icons",
+    "iron-flex-layout": "PolymerElements/iron-flex-layout",
+    "taaabs-trace-loader": "TaaabsElements/taaabs-trace-loader",
+    "taaabs-trace-timeline":"TaaabsElements/taaabs-trace-timeline",
+    "taaabs-trace-timeline-scroller":"TaaabsElements/taaabs-trace-timeline-scroller",
+    "taaabs-trace-timeline-stylesheet":"TaaabsElements/taaabs-trace-timeline-stylesheet",
+    "taaabs-model-simpleview":"TaaabsElements/taaabs-model-simpleview",
+    "taaabs-obsel-simpleview":"TaaabsElements/taaabs-obsel-simpleview",
+    "golden-layout-component":"https://github.com/Yepikae/golden-layout-component.git",
+    "taaabs-themes":"TaaabsElements/taaabs-themes"
+  },
+  "devDependencies": {
+    "iron-component-page": "polymerelements/iron-component-page#^1.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+  },
+  "ignore": []
+}
