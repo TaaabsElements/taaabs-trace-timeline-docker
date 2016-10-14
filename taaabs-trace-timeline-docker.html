@@ -260,7 +260,7 @@
                 componentState: {}
               }]
             }]
-          },{
+          }, {
             type: 'component',
             componentName: 'style_view',
             componentState: {},
@@ -316,6 +316,8 @@
             this.$.t3s.updateVisu(begin, end);
             this.$.t3.displayObsels(begin, end, []);
 
+            this._bindTimelineEvents();
+
           }.bind(this), 500);
 
         }.bind(this));
@@ -325,6 +327,46 @@
         this.$.t3.addEventListener('obselClicked', function(evt) {
           this.set('_focusedObsel', evt.detail.obs);
         }.bind(this));
+      },
+
+      _bindTimelineEvents: function() {
+        this.$.t3s.addEventListener('zlBeginMoved', function() {
+          var begin = this.$.t3s._zlBegin;
+          var end = this.$.t3s._zlEnd;
+          this.$.t3.displayObsels(begin, end, this._getObselsInRange(begin, end));
+          this.$.t3s.updateVisu(begin,end);
+        }.bind(this));
+        this.$.t3s.addEventListener('zlEndMoved', function() {
+          var begin = this.$.t3s._zlBegin;
+          var end = this.$.t3s._zlEnd;
+          this.$.t3.displayObsels(begin, end, this._getObselsInRange(begin, end));
+          this.$.t3s.updateVisu(begin,end);
+        }.bind(this));
+        this.$.t3s.addEventListener('zlGlobalMoved', function() {
+          var begin = this.$.t3s._zlBegin;
+          var end = this.$.t3s._zlEnd;
+          this.$.t3.displayObsels(begin, end, this._getObselsInRange(begin, end));
+          this.$.t3s.updateVisu(begin,end);
+        }.bind(this));
+        this.$.t3.addEventListener('zoom', function() {
+          var begin = this.$.t3._zoomBegin;
+          var end = this.$.t3._zoomEnd;
+          this.$.t3.displayObsels(begin, end, this._getObselsInRange(this.$.t3._zoomBegin, this.$.t3._zoomEnd));
+          this.$.t3s.updateVisu();
+        }.bind(this));
+      },
+
+      _getObselsInRange: function(begin, end) {
+        var obsels = [];
+        var i = 0;
+        while (i < this._obsels.length && this._obsels[i].begin < begin) {
+          i++;
+        }
+        while (i < this._obsels.length && this._obsels[i].end <= end) {
+          obsels.push(this._obsels[i]);
+          i++;
+        }
+        return obsels;
       },
 
       /**
@@ -358,36 +400,35 @@
           });
       },
 
-      _loadStylesheet: function(){
+      _loadStylesheet: function() {
         // Create a random stylesheet
         this.$.t3stylesheet.createRandomStyle();
         // Load the styles from th emodel
         this.$.t3stylesheet.loadStylesheetsFromModel();
         // Add the event listeners
-        this.$.t3stylesheet.addEventListener('template_changed', function(evt){
+        this.$.t3stylesheet.addEventListener('template_changed', function(evt) {
           this.$.t3.updateVisu();
         }.bind(this));
-        this.$.t3stylesheet.addEventListener('edit_rule', function(evt){
+        this.$.t3stylesheet.addEventListener('edit_rule', function(evt) {
           this.$.t3se.setRule(evt.detail.rule);
         }.bind(this));
         // Add an event listener on the stylesheet editor
-        this.$.t3se.addEventListener('APPLY_STYLE', function(evt){
+        this.$.t3se.addEventListener('APPLY_STYLE', function(evt) {
           this.$.t3stylesheet.addRule(evt.detail.rule);
           this.$.t3.updateVisu();
         }.bind(this));
-        this.$.t3se.addEventListener('UPDATE_STYLE', function(evt){
+        this.$.t3se.addEventListener('UPDATE_STYLE', function(evt) {
           this.$.t3.updateVisu();
           this.$.t3stylesheet.forceRefresh();
         }.bind(this));
       },
 
-
       _initModelSimpleview: function() {
         // Add an event for type or attribute selection
         this.$.tmsv.addSelectionEvent('selected', 'icons:bookmark-border', function(evt, resource) {
-          if(resource.obj === 'type')
-            this.$.t3se.setType(resource.name.replace('#',"m:"));
-          else this.$.t3se.addAttribute(resource.name.replace('#','m:'));
+          if (resource.obj === 'type')
+            this.$.t3se.setType(resource.name.replace('#', "m:"));
+          else this.$.t3se.addAttribute(resource.name.replace('#', 'm:'));
         }.bind(this));
       }
     });
