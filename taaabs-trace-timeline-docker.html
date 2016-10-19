@@ -351,8 +351,8 @@
         this.$.t3.addEventListener('zoom', function() {
           var begin = this.$.t3._zoomBegin;
           var end = this.$.t3._zoomEnd;
-          this.$.t3.displayObsels(begin, end, this._getObselsInRange(this.$.t3._zoomBegin, this.$.t3._zoomEnd));
-          this.$.t3s.updateVisu();
+          this.$.t3.displayObsels(begin, end, this._getObselsInRange(begin, end));
+          this.$.t3s.updateVisu(begin,end);
         }.bind(this));
       },
 
