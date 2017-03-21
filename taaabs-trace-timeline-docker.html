@@ -1,6 +1,9 @@
 <!-- iron-components -->
 <link rel="import" href="../iron-pages/iron-pages.html">
 <link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
+<!-- paper-elements -->
+<link rel="import" href="../paper-progress/paper-progress.html">
+<link rel="import" href="../paper-spinner/paper-spinner.html">
 <!-- Trace loader -->
 <link rel="import" href="../taaabs-trace-loader/taaabs-trace-loader.html">
 <link rel="import" href="../taaabs-trace-timeline/taaabs-trace-timeline.html">
@@ -15,6 +18,8 @@
 <link rel="import" href="../golden-layout-component/golden-layout-component.html">
 <!-- Style -->
 <link rel="import" href="../taaabs-themes/taaabs-dark-theme.html">
+<link rel="import" href="../notify-toast-behavior/notify-toast-behavior.html">
+<link rel="import" href="../../elements/taaabs-time-utilities/taaabs-time-utilities.html">
 <!-- Enough with the dependencies -->
 <dom-module id="taaabs-trace-timeline-docker">
   <template>
@@ -23,121 +28,14 @@
       :host {
         display: block;
       }
-
-      :host #loading {
-        height: 100%;
-        @apply(--layout-center-justified);
-        @apply(--layout-horizontal);
-        @apply(--layout-center);
-      }
-
-      :host #loading> div {
-        @apply(--layout-vertical);
-        width: 300px;
-      }
-
-      :host #loading> div> div {
-        @apply(--layout-horizontal);
-        @apply(--layout-justified);
-      }
-
-      :host #loading> div> p {
-        font-size: 14px;
-      }
-
-      :host .fade {
-        opacity: 0.6;
-      }
-
-      :host .dot {
-        width: 20px;
-        height: 20px;
-        border: 2px solid #2E3842;
-        border-radius: 50%;
-        margin: 0 5px;
-        -webkit-transform: scale(0);
-        transform: scale(0);
-        -webkit-animation: fx 1000ms ease infinite 0ms;
-        animation: fx 1000ms ease infinite 0ms;
-      }
-
-      :host .dot:nth-child(2) {
-        -webkit-animation: fx 1000ms ease infinite 150ms;
-        animation: fx 1000ms ease infinite 150ms;
-      }
-
-      :host .dot:nth-child(3) {
-        -webkit-animation: fx 1000ms ease infinite 300ms;
-        animation: fx 1000ms ease infinite 300ms;
-      }
-
-      :host .dot:nth-child(4) {
-        -webkit-animation: fx 1000ms ease infinite 450ms;
-        animation: fx 1000ms ease infinite 450ms;
-      }
-
-      :host .dot:nth-child(5) {
-        -webkit-animation: fx 1000ms ease infinite 600ms;
-        animation: fx 1000ms ease infinite 600ms;
-      }
-
-      :host .dot:nth-child(5) {
-        -webkit-animation: fx 1000ms ease infinite 750ms;
-        animation: fx 1000ms ease infinite 750ms;
-      }
-
-      @-webkit-keyframes fx {
-        50% {
-          -webkit-transform: scale(1);
-          transform: scale(1);
-          opacity: 1;
-        }
-        100% {
-          opacity: 0;
-        }
-      }
-
-      @keyframes fx {
-        50% {
-          -webkit-transform: scale(1);
-          transform: scale(1);
-          opacity: 1;
-        }
-        100% {
-          opacity: 0;
-        }
-      }
     </style>
     <iron-pages id="pages" selected="0">
       <div id="loading">
         <div>
-          <p id="loading_1">
-            <iron-icon icon="icons:check-circle"></iron-icon>
-            Loading the trace...
-          </p>
-          <p id="loading_2" class="fade">
-            <iron-icon icon="icons:check-circle"></iron-icon>
-            Retrieving the model...
-          </p>
-          <p id="loading_3" class="fade">
-            <iron-icon icon="icons:check-circle"></iron-icon>
-            Getting some stylesheets...
-          </p>
-          <p id="loading_4" class="fade">
-            <iron-icon icon="icons:check-circle"></iron-icon>
-            Asking the base...
-          </p>
-          <p id="loading_5" class="fade">
-            <iron-icon icon="icons:check-circle"></iron-icon>
-            Downloading the obsels...
-          </p>
-          <div>
-            <div class="dot"></div>
-            <div class="dot"></div>
-            <div class="dot"></div>
-            <div class="dot"></div>
-            <div class="dot"></div>
-          </div>
+          <paper-progress id="loading-progress" value="0"></paper-progress>
+        </div>
+        <div>
+          <paper-spinner active></paper-spinner><span>[[_loadingMessage]]</span>
         </div>
       </div>
       <div>
@@ -153,11 +51,28 @@
     <!-- Taaabs trace loader -->
     <taaabs-trace-loader id="traceLoader" trace-url="[[traceUrl]]" obsels="{{_obsels}}"></taaabs-trace-loader>
 
-    <div id="timeline" style="width:100%">
-      <taaabs-trace-timeline id="t3" obsels="{{_obsels}}" format="DATE" style-template="[[traceStyleSheet]]" grad="{{_grad}}" style="width: 100%">
-      </taaabs-trace-timeline>
-      <taaabs-trace-timeline-scroller id="t3s" format="DATE" grad="{{_grad}}" style="width: 100%">
-      </taaabs-trace-timeline-scroller>
+    <div id="trace-info" style="width:100%">
+      <p> Trace ID : {{_mainInfoDisplay.traceId}} </p>
+      <p> Trace Label : {{_mainInfoDisplay.traceLabel}} </p>
+      <p> Trace Description : {{_mainInfoDisplay.traceDescription}} </p>
+      <p> Trace URL : <a href="{{traceUrl}}">{{traceUrl}}</a> </p>
+      <p> Obsel count : {{_mainInfoDisplay.obselCount}} </p>
+      <p> Min time : {{_mainInfoDisplay.minTime}} </p>
+      <p> Max time : {{_mainInfoDisplay.maxTime}} </p>
+      <p> Duration : {{_mainInfoDisplay.duration}} </p>
+      <!--
+
+      -->
+      <!--
+        <taaabs-trace-timeline id="t3" obsels="{{_obsels}}" format="DATE" style-template="[[traceStyleSheet]]" grad="{{_grad}}" style="width: 100%">
+        </taaabs-trace-timeline>
+        <taaabs-trace-timeline-scroller id="t3s" format="DATE" grad="{{_grad}}" style="width: 100%">
+        </taaabs-trace-timeline-scroller>
+      -->
+    </div>
+
+    <div id="timeline" style="width: 100%">
+      <taaabs-trace-histogram id="tth" trace="[[_trace]]" language="en"></taaabs-trace-histogram>
     </div>
 
     <taaabs-model-simpleview id="tmsv" model=[[_model]]></taaabs-model-simpleview>
@@ -167,7 +82,9 @@
     <taaabs-tts-editor id="t3se"></taaabs-tts-editor>
 
 
-    <taaabs-trace-timeline-stylesheet id="t3stylesheet" model=[[_model]] style-template="{{traceStyleSheet}}"></taaabs-trace-timeline-stylesheet>
+    <taaabs-trace-timeline-stylesheet id="t3stylesheet" model=[[_model]] current-stylesheet="{{_currentStylesheet}}"></taaabs-trace-timeline-stylesheet>
+
+    <paper-toast class="fit-bottom" id="__notify_toast__" duration=0> </paper-toast>
 
   </template>
   <script>
@@ -214,6 +131,18 @@
         },
 
         /**
+         * The trace stats.
+         *
+         * @attribute _traceStats
+         * @type Object
+         */
+        _traceStats: {
+          type: Object,
+          notify: true,
+          value: null
+        },
+
+        /**
          * The model of the trace.
          *
          * @attribute _model
@@ -224,7 +153,101 @@
           notify: true,
           value: null
         },
+
+        /**
+         * List of the stylesheets.
+         *
+         * @attribute _stylesheets
+         * @type Array
+         */
+        _stylesheets: {
+          type: Array,
+          notify: true,
+          value: null
+        },
+
+        /**
+         * The current stylesheet.
+         *
+         * @attribute _currentStylesheet
+         * @type Object
+         */
+        _currentStylesheet: {
+          type: Object,
+          notify: true,
+          value: null
+        },
+
+        /**
+         * List of the informations to display in the trace main info panel.
+         *
+         * @attribute _mainInfoDisplay
+         * @type Object
+         */
+        _mainInfoDisplay: {
+          type: Object,
+          notify: true,
+          value: null
+        },
+
+        /**
+         * Message displayed on loading page.
+         *
+         * @attribute _loadingMessage
+         * @type String
+         */
+        _loadingMessage: {
+          type: String,
+          notify: true,
+          value: ""
+        },
+
+        /** --------------------------------------------------------------------
+        // MARK: Properties: Utilities
+        **/
+
+        /**
+         * Some predefined colors (what a surprise).
+         *
+         * @attribute _predefined_colors_
+         * @type Array
+         */
+        _predefined_colors_: {
+          type: Array,
+          value: function() {
+            return [
+              '#3F51B5', /* Indigo       */
+              '#FFEB3B', /* Yellow       */
+              '#FF5722', /* Deep Orange  */
+              '#4CAF50', /* Green        */
+              '#009688', /* Teal         */
+              '#9C27B0', /* Purple       */
+              '#CDDC39', /* Lime         */
+              '#FF9800', /* Orange       */
+              '#03A9F4', /* Light Blue   */
+              '#E91E63', /* Pink         */
+              '#F44336', /* Red          */
+              '#607D8B', /* Blue Grey    */
+            ];
+          }
+        },
+
+        /**
+         * A taaabs-time-utilities.
+         *
+         * @attribute _ttu
+         * @type Object
+         */
+        _ttu: {
+          type: Object,
+          notify: true,
+          value: function() {
+            return new TaaabsTimeUtilities();
+          }
+        },
       },
+
+      behaviors: [NotifyToastBehavior],
 
       ready: function() {},
 
@@ -236,28 +259,38 @@
             type: 'column',
             width: 80,
             content: [{
-              type: 'component',
-              componentName: 'timeline',
-              componentState: {},
-              height: 40
+              type: 'stack',
+              content: [{
+                  type: 'component',
+                  componentName: 'trace-info',
+                  componentState: {},
+                },
+                {
+                  type: 'component',
+                  componentName: 'timeline',
+                  componentState: {},
+                }
+              ],
+              height: 50
             }, {
               type: 'row',
               content: [{
                 type: 'stack',
                 content: [{
                   type: 'component',
-                  componentName: 'obsel_view',
-                  componentState: {},
-                  width: 30
-                }, {
-                  type: 'component',
                   componentName: 'model_view',
                   componentState: {}
+                },{
+                  type: 'component',
+                  componentName: 'obsel_view',
+                  componentState: {},
+                  width: 40
                 }]
               }, {
                 type: 'component',
                 componentName: 'style_editor',
-                componentState: {}
+                componentState: {},
+                width: 60
               }]
             }]
           }, {
@@ -268,6 +301,7 @@
         };
         // Element list
         var list = {
+          'trace-info': this.$['trace-info'],
           'timeline': this.$.timeline,
           'obsel_view': this.$.tosv,
           'model_view': this.$.tmsv,
@@ -278,16 +312,275 @@
         this.$.glc.registerComponents(list, config);
       },
 
+      refresh: function() {
+        this._loadTrace();
+      },
+
+      /** ----------------------------------------------------------------------
+      // MARK: Functions: Loading
+      **/
+
+      /**
+       * On `TRACE_READY` event from the `trace-loader`. Set the trace and calls `_loadTraceStats`.
+       *
+       * @param {!required} evt {Event} The `TRACE_READY` event.
+       *
+       * @method _onTraceReady
+       */
+      _onTraceReady: function(evt) {
+        // Set the `_trace`
+        this.set('_trace', this.$.traceLoader.getTrace());
+        // Change the loading status
+        this.set('_loadingMessage', 'Loading the trace stats...');
+        this.$['loading-progress'].set('value', 20);
+        // Load the trace stats
+        this._loadTraceStats();
+      },
+
+      /**
+       * Loads the trace, then calls `_onTraceReady`.
+       *
+       * @method _loadTrace
+       */
+      _loadTrace: function() {
+        // Set the loading message
+        this.set('_loadingMessage', 'Loading the trace...');
+        // When the trace is loaded, we load the model of the trace.
+        this.$.traceLoader.addEventListener('TRACE_READY', function(evt) {
+          this._onTraceReady(evt);
+        }.bind(this));
+        // Load the trace
+        this.$.traceLoader.loadTrace();
+      },
+
+      /**
+       * On `_trace.get_stats` success. Set `_traceStats`, then calls '_loadModel'.
+       *
+       * @param {!required} stats {Object} The trace stats.
+       *
+       * @method _onTraceStatsReady
+       */
+      _onTraceStatsReady: function(stats) {
+        // We set the stats.
+        this.set('_traceStats', stats);
+        // Change the loading status
+        this.set('_loadingMessage', 'Loading the trace model...');
+        this.$['loading-progress'].set('value', 40);
+        // Load the trace stats
+        this._loadTraceModel();
+      },
+
+      /**
+       * Load the trace stats. Calls `_onTraceStatsReady` on loading success.
+       *
+       * @method _loadTraceStats
+       */
+      _loadTraceStats: function() {
+        this._trace.get_stats().then(function(stats) {
+          this._onTraceStatsReady(stats);
+        }.bind(this)).catch(function(err) {
+          this.notifyToast('An error occured when loading the trace stats. <br/>' + err, {
+            'type': 'Error',
+            'timeout': -1
+          });
+        }.bind(this));
+      },
+
+      /**
+       * On `_model.load()` success. Calls _loadStylesheets.
+       *
+       * @param {!required}  {String} .
+       *
+       * @method _onTraceModelReady
+       */
+      _onTraceModelReady: function() {
+        // Change the loading status
+        this.set('_loadingMessage', 'Loading stylesheets...');
+        this.$['loading-progress'].set('value', 60);
+        // Loads the stylesheets
+        this._loadStylesheet();
+      },
+
+      /**
+       * Load the trace model. Calls `_onTraceModelReady` on loading success.
+       *
+       * @method _loadTraceModel
+       */
+      _loadTraceModel: function() {
+        // Create the Model
+        this.set('_model', new Samotraces.Ktbs.Model(this._trace.model_uri));
+        // Load the Model
+        this._model.load()
+          .then(function() {
+            this._onTraceModelReady();
+          }.bind(this))
+          .catch(function(err) {
+            console.log(err);
+            this.notifyToast('An error occured when loading the trace model. <br/>' + err, {
+              'type': 'Error',
+              'timeout': -1
+            });
+          }.bind(this));
+      },
+
+      /**
+       * Loads the model stylesheets (if they exists), then calls `_loadComponents`.
+       *
+       * @method _loadStylesheet
+       */
+      _loadStylesheet: function() {
+        if (this._model.model_properties['http://taaabs-hubble/onto#timeline-stylesheet']) {
+          var ss = [];
+          try {
+            ss = JSON.parse(this._model.model_properties['http://taaabs-hubble/onto#timeline-stylesheet']);
+          } catch (err) {
+            this.notifyToast('An error occured when loading the stored stylesheets. <br/>' + err, {
+              'type': 'Warning',
+              'timeout': 5000
+            });
+          }
+          this.set('_stylesheets', ss);
+        } else {
+          this.set('_stylesheets', []);
+        }
+        // Change the loading status
+        this.set('_loadingMessage', 'Loading trace analysis components...');
+        this.$['loading-progress'].set('value', 80);
+        // Loads the stylesheets
+        this._loadComponents();
+      },
+
+      /** ----------------------------------------------------------------------
+      // MARK: Functions: Components loading
+      **/
+
+      /**
+       * Loads the differents taaabs components.
+       *
+       * @method _loadComponents
+       */
+      _loadComponents() {
+        // Set the main informations
+        this._displayTraceMainInfo();
+        // Create the obsel type stylesheet then load the stylesheet component
+        this._createTypeStylesheet();
+        this.$.t3stylesheet.refresh();
+        // Init the trace histogram component
+        this._initTraceHistogram();
+        // Init the model simple view
+        this.$.tmsv.refresh();
+        this.$.pages.set('selected', 1);
+      },
+
+      /**
+       * Set `_mainInfoDisplay` to display the trace informations.
+       *
+       * @method _displayTraceMainInfo
+       */
+      _displayTraceMainInfo() {
+        var mid = {};
+        var begin_date = new Date(this._traceStats['stats:minTime']);
+        var end_date = new Date(this._traceStats['stats:maxTime']);
+        mid.minTime = begin_date.toUTCString();
+        mid.maxTime = end_date.toUTCString();
+        mid.duration = this._ttu.get_human_readable_duration(begin_date, end_date);
+        mid.obselCount = this._traceStats['stats:obselCount'];
+        mid.traceId = this._trace.attributes['@id'].split('/')[this._trace.attributes['@id'].split('/').length - 2];
+        mid.traceLabel = this._trace.attributes.label;
+        mid.traceDescription = this._trace.attributes['http://www.w3.org/2000/01/rdf-schema#comment'];
+        this.set('_mainInfoDisplay', mid);
+      },
+
+      /**
+       * Create the default stylesheet, which only focuses on the obsel types.
+       *
+       * @method _createTypeStylesheet
+       */
+      _createTypeStylesheet: function() {
+        var rules = [];
+        var pointer = 0;
+        for (var i = 0; i < this._model.list_type_obsels.length; i++) {
+          var ssft = this._setSymbolForType(this._model.list_type_obsels[i]['@id'], pointer);
+          pointer = ssft.p;
+          var rule = {
+            id: 'rule for ' + this._uriToName(this._model.list_type_obsels[i]['@id']),
+            rules: [{
+              type: this._uriToName(this._model.list_type_obsels[i]['@id']),
+              attributes: []
+            }],
+            visible: true,
+            symbol: ssft.d[1]
+          };
+          rules.push(rule);
+        }
+        this.set('_currentStylesheet', {
+          'name': 'Obsel_Types',
+          'description': 'Stylesheet with one symbol per obsel type.',
+          'rules': rules
+        });
+      },
+
+      /**
+       * Initialise the taaabs-trace-histogram.
+       *
+       * @method _initTraceHistogram
+       */
+      _initTraceHistogram: function() {
+        this.$.tth.setBounds(this._traceStats['stats:minTime'], this._traceStats['stats:maxTime']);
+        console.log(this._model);
+        var atts = [];
+        for(var i=0; i < this._model.list_type_attributes.length; i++){
+          atts.push('m:'+this._uriToName(this._model.list_type_attributes[i]['@id']));
+        }
+        this.$.tth.setAttributesList(atts);
+        //this._setTraceHistogramColors();
+      },
+
+      /**
+       * Set the taaabs-trace-histogram colors.
+       *
+       * @method _setTraceHistogramColors
+       */
+      _setTraceHistogramColors: function(){
+        // TODO : bind the colors of the stylehsheet to those of the histogram
+        //this.$.tth.setColors()
+      },
+
+      /** ----------------------------------------------------------------------
+      // MARK: Functions: Utilities
+      **/
+
+      _uriToName: function(uri) {
+        return (uri) ? uri.replace(this._model.uri + '#', '') : uri;
+      },
+
+      _nameToUri: function(name) {
+        return this._model.uri + '#' + name;
+      },
+
+      _setSymbolForType: function(uri, pointer) {
+        if (pointer >= this._predefined_colors_.length) {
+          pointer = 0;
+        }
+        return {
+          'd': [uri, {
+            'color': this._predefined_colors_[pointer],
+            'shape': 'CIRCLE'
+          }],
+          'p': pointer + 1
+        };
+      },
+
+      /** ----------------------------------------------------------------------
+      // MARK: OLD THINGS
+      **/
+
       /**
        * Loads the trace, the model of the trace, the stylesheet available for the trace.
        *
        * @method giveMeEverything
        */
       giveMeEverything: function() {
-        // Set an array with the loading texts.
-        this.set('_loadingArray', [
-          this.$.loading_1, this.$.loading_2, this.$.loading_3, this.$.loading_4, this.$.loading_5
-        ]);
         // Update the visu each time an obsels package is downloaded.
         this.$.traceLoader.addEventListener('PACKAGE_LOADED', function(evt) {
           this.$.t3.updateVisu();
@@ -299,30 +592,28 @@
           // TODO finir ici
           this._loadModel();
 
-          this.$.pages.selected = 1;
+          //this.$.pages.selected = 1;
 
-          setTimeout(function() {
-            this.$.traceLoader.loadObsels();
-
-            var begin = this.$.traceLoader.getBeginObsel().begin;
-            var end = this.$.traceLoader.getEndObsel().end;
-
-            this.$.t3.begin = this.$.t3s.begin = begin;
-            this.$.t3.end = this.$.t3s.end = end;
-
-            this.$.t3.initVisu();
-            this.$.t3s.initVisu();
-
-            this.$.t3s.updateVisu(begin, end);
-            this.$.t3.displayObsels(begin, end, []);
-
-            this._bindTimelineEvents();
-
-          }.bind(this), 500);
+          // setTimeout(function() {
+          //   this.$.traceLoader.loadObsels();
+          //
+          //   var begin = this.$.traceLoader.getBeginObsel().begin;
+          //   var end = this.$.traceLoader.getEndObsel().end;
+          //
+          //   this.$.t3.begin = this.$.t3s.begin = begin;
+          //   this.$.t3.end = this.$.t3s.end = end;
+          //
+          //   this.$.t3.initVisu();
+          //   this.$.t3s.initVisu();
+          //
+          //   this.$.t3s.updateVisu(begin, end);
+          //   this.$.t3.displayObsels(begin, end, []);
+          //
+          //   this._bindTimelineEvents();
+          //
+          // }.bind(this), 500);
 
         }.bind(this));
-        // Load the trace
-        this.$.traceLoader.loadTrace();
 
         this.$.t3.addEventListener('obselClicked', function(evt) {
           this.set('_focusedObsel', evt.detail.obs);
@@ -334,25 +625,25 @@
           var begin = this.$.t3s._zlBegin;
           var end = this.$.t3s._zlEnd;
           this.$.t3.displayObsels(begin, end, this._getObselsInRange(begin, end));
-          this.$.t3s.updateVisu(begin,end);
+          this.$.t3s.updateVisu(begin, end);
         }.bind(this));
         this.$.t3s.addEventListener('zlEndMoved', function() {
           var begin = this.$.t3s._zlBegin;
           var end = this.$.t3s._zlEnd;
           this.$.t3.displayObsels(begin, end, this._getObselsInRange(begin, end));
-          this.$.t3s.updateVisu(begin,end);
+          this.$.t3s.updateVisu(begin, end);
         }.bind(this));
         this.$.t3s.addEventListener('zlGlobalMoved', function() {
           var begin = this.$.t3s._zlBegin;
           var end = this.$.t3s._zlEnd;
           this.$.t3.displayObsels(begin, end, this._getObselsInRange(begin, end));
-          this.$.t3s.updateVisu(begin,end);
+          this.$.t3s.updateVisu(begin, end);
         }.bind(this));
         this.$.t3.addEventListener('zoom', function() {
           var begin = this.$.t3._zoomBegin;
           var end = this.$.t3._zoomEnd;
           this.$.t3.displayObsels(begin, end, this._getObselsInRange(begin, end));
-          this.$.t3s.updateVisu(begin,end);
+          this.$.t3s.updateVisu(begin, end);
         }.bind(this));
       },
 
@@ -369,66 +660,12 @@
         return obsels;
       },
 
-      /**
-       * Change the loading appearance.
-       *
-       * @param {!required} load {Number} Loading element to validate.
-       *
-       * @method _changeLoadingStatus
-       */
-      _changeLoadingStatus: function(load) {
-        this._loadingArray[load].classList.add('fgGreen');
-        this._loadingArray[load + 1].classList.remove('fade');
-      },
-
-      _loadModel: function() {
-        // Create the Model
-        this.set('_model', new Samotraces.Ktbs.Model(this._trace.model_uri));
-        // Load the Model
-        this._model.load()
-          .then(function() {
-            this.$.tmsv.refresh();
-            this.async(function() {
-              // Init the model simple view
-              this._initModelSimpleview();
-              // Get the stylesheets
-              this._loadStylesheet();
-            }, 100);
-          }.bind(this))
-          .catch(function(err) {
-            console.log(err);
-          });
-      },
-
-      _loadStylesheet: function() {
-        // Create a random stylesheet
-        this.$.t3stylesheet.createRandomStyle();
-        // Load the styles from th emodel
-        this.$.t3stylesheet.loadStylesheetsFromModel();
-        // Add the event listeners
-        this.$.t3stylesheet.addEventListener('template_changed', function(evt) {
-          this.$.t3.updateVisu();
-        }.bind(this));
-        this.$.t3stylesheet.addEventListener('edit_rule', function(evt) {
-          this.$.t3se.setRule(evt.detail.rule);
-        }.bind(this));
-        // Add an event listener on the stylesheet editor
-        this.$.t3se.addEventListener('APPLY_STYLE', function(evt) {
-          this.$.t3stylesheet.addRule(evt.detail.rule);
-          this.$.t3.updateVisu();
-        }.bind(this));
-        this.$.t3se.addEventListener('UPDATE_STYLE', function(evt) {
-          this.$.t3.updateVisu();
-          this.$.t3stylesheet.forceRefresh();
-        }.bind(this));
-      },
-
       _initModelSimpleview: function() {
         // Add an event for type or attribute selection
         this.$.tmsv.addSelectionEvent('selected', 'icons:bookmark-border', function(evt, resource) {
           if (resource.obj === 'type')
             this.$.t3se.setType(resource.name.replace('#', "m:"));
-          else this.$.t3se.addAttribute(resource.name.replace('#', 'm:'));
+          else this.$.t3se.addAttribute(resource.name.replace('#', 'm:'), "");
         }.bind(this));
       }
     });
