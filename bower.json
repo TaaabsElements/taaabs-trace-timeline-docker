@@ -17,7 +17,7 @@
   "main": "taaabs-trace-timeline-docker.html",
   "license": "https://github.com/TaaabsElements/taaabs-trace-timeline-docker/LICENSE",
   "dependencies": {
-    "polymer": "polymer/polymer#^1.0.0",
+    "polymer": "polymer/polymer",
     "app-localize-behavior": "PolymerElements/app-localize-behavior",
     "iron-pages": "PolymerElements/iron-pages",
     "iron-icons": "PolymerElements/iron-icons",

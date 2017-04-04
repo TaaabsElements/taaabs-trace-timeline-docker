@@ -6,8 +6,7 @@
 <link rel="import" href="../paper-spinner/paper-spinner.html">
 <!-- Trace loader -->
 <link rel="import" href="../taaabs-trace-loader/taaabs-trace-loader.html">
-<link rel="import" href="../taaabs-trace-timeline/taaabs-trace-timeline.html">
-<link rel="import" href="../taaabs-trace-timeline-scroller/taaabs-trace-timeline-scroller.html">
+<link rel="import" href="../taaabs-trace-timeline-container/taaabs-trace-timeline-container.html">
 <link rel="import" href="../taaabs-trace-timeline-stylesheet/taaabs-trace-timeline-stylesheet.html">
 <link rel="import" href="../taaabs-trace-timeline-stylesheet/taaabs-tts-editor.html">
 <!-- Model view -->
@@ -72,7 +71,7 @@
     </div>
 
     <div id="timeline" style="width: 100%">
-      <taaabs-trace-histogram id="tth" trace="[[_trace]]" language="en"></taaabs-trace-histogram>
+      <taaabs-trace-timeline-container id="timeline-container" language="en"></taaabs-trace-timeline-container>
     </div>
 
     <taaabs-model-simpleview id="tmsv" model=[[_model]]></taaabs-model-simpleview>
@@ -80,7 +79,6 @@
     <taaabs-obsel-simpleview id="tosv" obsel=[[_focusedObsel]]></taaabs-obsel-simpleview>
 
     <taaabs-tts-editor id="t3se"></taaabs-tts-editor>
-
 
     <taaabs-trace-timeline-stylesheet id="t3stylesheet" model=[[_model]] current-stylesheet="{{_currentStylesheet}}"></taaabs-trace-timeline-stylesheet>
 
@@ -310,6 +308,12 @@
         };
         // Add the elements to the golden-layout
         this.$.glc.registerComponents(list, config);
+
+        this.$['timeline-container'].$.timeline.addEventListener('selected-obsel', function(evt){
+          var o = this.$['timeline-container'].$.timeline.selectedObsel.obsel;
+          this.$.tosv.set('obsel', o);
+        }.bind(this));
+
       },
 
       refresh: function() {
@@ -330,10 +334,15 @@
       _onTraceReady: function(evt) {
         // Set the `_trace`
         this.set('_trace', this.$.traceLoader.getTrace());
+
+        this.$['timeline-container'].set('trace', this._trace);
+        this.$['timeline-container'].set('traceUri', this._trace.uri);
+
         // Change the loading status
         this.set('_loadingMessage', 'Loading the trace stats...');
         this.$['loading-progress'].set('value', 20);
         // Load the trace stats
+        console.log("trace ready");
         this._loadTraceStats();
       },
 
@@ -347,9 +356,11 @@
         this.set('_loadingMessage', 'Loading the trace...');
         // When the trace is loaded, we load the model of the trace.
         this.$.traceLoader.addEventListener('TRACE_READY', function(evt) {
+          evt.preventDefault();
           this._onTraceReady(evt);
         }.bind(this));
         // Load the trace
+        console.log("load trace");
         this.$.traceLoader.loadTrace();
       },
 
@@ -363,10 +374,14 @@
       _onTraceStatsReady: function(stats) {
         // We set the stats.
         this.set('_traceStats', stats);
+
+        this.$['timeline-container'].set('traceStats', stats);
+
         // Change the loading status
         this.set('_loadingMessage', 'Loading the trace model...');
         this.$['loading-progress'].set('value', 40);
         // Load the trace stats
+        console.log("load model");
         this._loadTraceModel();
       },
 
@@ -377,6 +392,7 @@
        */
       _loadTraceStats: function() {
         this._trace.get_stats().then(function(stats) {
+          console.log("loading trace stats");
           this._onTraceStatsReady(stats);
         }.bind(this)).catch(function(err) {
           this.notifyToast('An error occured when loading the trace stats. <br/>' + err, {
@@ -398,6 +414,7 @@
         this.set('_loadingMessage', 'Loading stylesheets...');
         this.$['loading-progress'].set('value', 60);
         // Loads the stylesheets
+        console.log("load stylesheet");
         this._loadStylesheet();
       },
 
@@ -409,7 +426,7 @@
       _loadTraceModel: function() {
         // Create the Model
         this.set('_model', new Samotraces.Ktbs.Model(this._trace.model_uri));
-        // Load the Model
+        //Load the Model
         this._model.load()
           .then(function() {
             this._onTraceModelReady();
@@ -447,6 +464,7 @@
         this.set('_loadingMessage', 'Loading trace analysis components...');
         this.$['loading-progress'].set('value', 80);
         // Loads the stylesheets
+        console.log("load components");
         this._loadComponents();
       },
 
@@ -466,7 +484,7 @@
         this._createTypeStylesheet();
         this.$.t3stylesheet.refresh();
         // Init the trace histogram component
-        this._initTraceHistogram();
+        this._initTraceTimeline();
         // Init the model simple view
         this.$.tmsv.refresh();
         this.$.pages.set('selected', 1);
@@ -521,19 +539,13 @@
       },
 
       /**
-       * Initialise the taaabs-trace-histogram.
+       * Initialise the taaabs-trace-timeline-container.
        *
-       * @method _initTraceHistogram
+       * @method _initTraceTimeline
        */
-      _initTraceHistogram: function() {
-        this.$.tth.setBounds(this._traceStats['stats:minTime'], this._traceStats['stats:maxTime']);
-        console.log(this._model);
-        var atts = [];
-        for(var i=0; i < this._model.list_type_attributes.length; i++){
-          atts.push('m:'+this._uriToName(this._model.list_type_attributes[i]['@id']));
-        }
-        this.$.tth.setAttributesList(atts);
-        //this._setTraceHistogramColors();
+      _initTraceTimeline: function() {
+        this.$['timeline-container'].refresh();
+        this.$['timeline-container'].set('stylesheet', this._currentStylesheet);
       },
 
       /**
