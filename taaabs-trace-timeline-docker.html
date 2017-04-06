@@ -78,9 +78,9 @@
 
     <taaabs-obsel-simpleview id="tosv" obsel=[[_focusedObsel]]></taaabs-obsel-simpleview>
 
-    <taaabs-tts-editor id="t3se"></taaabs-tts-editor>
+    <taaabs-tts-editor id="stylesheet-editor"></taaabs-tts-editor>
 
-    <taaabs-trace-timeline-stylesheet id="t3stylesheet" model=[[_model]] current-stylesheet="{{_currentStylesheet}}"></taaabs-trace-timeline-stylesheet>
+    <taaabs-trace-timeline-stylesheet id="timeline-stylesheet" model=[[_model]] current-stylesheet="{{_currentStylesheet}}"></taaabs-trace-timeline-stylesheet>
 
     <paper-toast class="fit-bottom" id="__notify_toast__" duration=0> </paper-toast>
 
@@ -303,8 +303,8 @@
           'timeline': this.$.timeline,
           'obsel_view': this.$.tosv,
           'model_view': this.$.tmsv,
-          'style_editor': this.$.t3se,
-          'style_view': this.$.t3stylesheet
+          'style_editor': this.$['stylesheet-editor'],
+          'style_view': this.$['timeline-stylesheet']
         };
         // Add the elements to the golden-layout
         this.$.glc.registerComponents(list, config);
@@ -312,6 +312,16 @@
         this.$['timeline-container'].$.timeline.addEventListener('selected-obsel', function(evt){
           var o = this.$['timeline-container'].$.timeline.selectedObsel.obsel;
           this.$.tosv.set('obsel', o);
+        }.bind(this));
+
+        this.$['timeline-stylesheet'].addEventListener('timeline-stylesheet-rule-setting', function(evt){
+          var r = evt.detail.rule;
+          this.$['stylesheet-editor'].setRule(r);
+        }.bind(this));
+
+        this.$['stylesheet-editor'].addEventListener('stylesheet-editor-apply', function(evt){
+          var r = evt.detail.rule;
+          this.$['timeline-stylesheet'].addRule(r);
         }.bind(this));
 
       },
@@ -482,7 +492,7 @@
         this._displayTraceMainInfo();
         // Create the obsel type stylesheet then load the stylesheet component
         this._createTypeStylesheet();
-        this.$.t3stylesheet.refresh();
+        this.$['timeline-stylesheet'].refresh();
         // Init the trace histogram component
         this._initTraceTimeline();
         // Init the model simple view
@@ -536,6 +546,7 @@
           'description': 'Stylesheet with one symbol per obsel type.',
           'rules': rules
         });
+        console.log(this._currentStylesheet);
       },
 
       /**
