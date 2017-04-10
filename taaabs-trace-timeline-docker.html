@@ -326,7 +326,8 @@
 
         this.$['timeline-stylesheet'].addEventListener('stylesheet-changed', function(evt){
           var s = evt.detail.stylesheet;
-          this.$['timeline-container'].set('stylesheet', this._currentStylesheet);
+          this.set('_currentStylesheet', s);
+          this.$['timeline-container'].set('stylesheet', s);
           this.$['timeline-container'].updateTimeline();
         }.bind(this));
 
@@ -540,7 +541,7 @@
           var rule = {
             id: 'rule for ' + this._uriToName(this._model.list_type_obsels[i]['@id']),
             rules: [{
-              type: this._uriToName(this._model.list_type_obsels[i]['@id']),
+              type: this._model.list_type_obsels[i]['@id'],
               attributes: []
             }],
             visible: true,
