@@ -24,6 +24,7 @@
     "iron-flex-layout": "PolymerElements/iron-flex-layout",
     "taaabs-trace-loader": "TaaabsElements/taaabs-trace-loader",
     "taaabs-trace-timeline":"TaaabsElements/taaabs-trace-timeline",
+    "taaabs-trace-timeline-container":"TaaabsElements/taaabs-trace-timeline-container",
     "taaabs-trace-timeline-scroller":"TaaabsElements/taaabs-trace-timeline-scroller",
     "taaabs-trace-timeline-stylesheet":"TaaabsElements/taaabs-trace-timeline-stylesheet",
     "taaabs-model-simpleview":"TaaabsElements/taaabs-model-simpleview",
