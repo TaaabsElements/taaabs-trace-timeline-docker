@@ -16,19 +16,78 @@
 <!-- Golden Docker -->
 <link rel="import" href="../golden-layout-component/golden-layout-component.html">
 <!-- Style -->
-<link rel="import" href="../taaabs-themes/taaabs-dark-theme.html">
+<link rel="import" href="../taaabs-themes/taaabs-theme.html">
 <link rel="import" href="../notify-toast-behavior/notify-toast-behavior.html">
 <link rel="import" href="../taaabs-time-utilities/taaabs-time-utilities.html">
 <!-- Enough with the dependencies -->
 <dom-module id="taaabs-trace-timeline-docker">
   <template>
-    <style include="taaabs-dark-theme"></style>
+    <style include="taaabs-theme"></style>
     <style>
       :host {
         display: block;
+        height: 100%;
+        padding: 0px;
       }
+
+      @media screen and (min-width: 1700px) {
+        #model-obsel-view-toggler {
+          display: none;
+        }
+        #model-view, #obsel-view {
+          width: 50%
+        }
+        #explorer-view {
+          width: 66%;
+        }
+        #rule-editor-view {
+          width: 33%;
+        }
+      }
+
+      @media screen and (max-width: 1700px) {
+        .force-display {
+          display: flex;
+        }
+        .force-hide {
+          display: none;
+        }
+        #model-obsel-view-toggler{
+          margin-bottom: 5px;
+        }
+        .highlighted-toggle {
+          border-bottom: solid 1px var(--paper-blue-500);
+        }
+        #model-view, #obsel-view {
+          width: 100%
+        }
+        #explorer-view {
+          width: 50%;
+        }
+        #rule-editor-view {
+          width: 50%;
+        }
+      }
+
+      @media screen and (max-height: 800px) {
+        #explorer-editor-panel {
+          height: 250px;
+          min-height: 250px;
+          max-height: 250px
+        }
+      }
+
+      @media screen and (min-height: 800px) {
+        #explorer-editor-panel {
+          height: 400px;
+          min-height: 400px;
+          max-height: 400px
+        }
+      }
+
+
     </style>
-    <iron-pages id="pages" selected="0">
+    <iron-pages style="height: 100%" class="flex-vertical" id="pages" selected="0">
       <div id="loading">
         <div>
           <paper-progress id="loading-progress" value="0"></paper-progress>
@@ -37,50 +96,74 @@
           <paper-spinner active></paper-spinner><span>[[_loadingMessage]]</span>
         </div>
       </div>
-      <div>
+
+      <!--
+
+       < ------------------ 1 ------------------ > < --- 2 --- >
+      * ----------------------------------------- * ----------- *
+      |                                           |             |
+      |                    1.1                    |     2.1     |
+      |                                           |             |
+      |                                           |             |
+      * ------------------- * ------------------- *             |
+      |        1.2.1        |        1.2.2        |             |
+      |                     |                     |             |
+      * ------------------- * ------------------- * ----------- *
 
 
-        <!-- Our beau-ti-ful docker layout -->
-        <golden-layout-component id="glc"></golden-layout-component>
+      -->
+      <div id="template-target" class="fit-width flex-horizontal flexchild">
+        <!-- 1 -->
+        <div class="flexchild fit-height">
+          <div class="flex-vertical fit-height">
+            <!-- 1.1 -->
+            <div class="fit-width flexchild flex-vertical" style="border-bottom: solid 1px grey;">
+              <taaabs-trace-timeline-container id="timeline-container" language="en"></taaabs-trace-timeline-container>
+            </div>
+
+            <!-- 1.2 -->
+            <div id="explorer-editor-panel" class="flex-horizontal">
 
 
+              <div id="explorer-view" class="flex-vertical flexchild" style="border-right: solid 1px grey">
+
+                <div id="model-obsel-view-toggler" class="flex-horizontal fit-width">
+                  <div id="model-view-toggle" class="hoverable clickable" style="width: 50%" on-click="_onModelViewToggle">
+                    Model View
+                  </div>
+                  <div id="obsel-view-toggle" class="hoverable clickable highlighted-toggle" style="width: 50%" on-click="_onObselViewToggle">
+                    Obsel View
+                  </div>
+                </div>
+                <div class="flex-horizontal fit-width flexchild">
+                  <!-- 1.2.1 -->
+                  <div id="model-view" class="swag-scroll force-hide">
+                    <taaabs-model-simpleview id="tmsv" model=[[_model]]></taaabs-model-simpleview>
+                  </div>
+
+                  <!-- 1.2.2 -->
+                  <div id="obsel-view" class="swag-scroll">
+                    <taaabs-obsel-simpleview id="tosv" obsel=[[_focusedObsel]]></taaabs-obsel-simpleview>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 1.2.3 -->
+              <div id="rule-editor-view" class="swag-scroll" >
+                <taaabs-tts-editor id="stylesheet-editor"></taaabs-tts-editor>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- 2 -->
+        <div class="swag-scroll" style="width: 330px; min-width: 330px; max-width: 330px; border-left: solid 1px grey">
+          <taaabs-trace-timeline-stylesheet id="timeline-stylesheet" model=[[_model]]></taaabs-trace-timeline-stylesheet>
+        </div>
       </div>
     </iron-pages>
 
     <!-- Taaabs trace loader -->
     <taaabs-trace-loader id="traceLoader" trace-url="[[traceUrl]]" obsels="{{_obsels}}"></taaabs-trace-loader>
-
-    <div id="trace-info" style="width:100%">
-      <p> Trace ID : {{_mainInfoDisplay.traceId}} </p>
-      <p> Trace Label : {{_mainInfoDisplay.traceLabel}} </p>
-      <p> Trace Description : {{_mainInfoDisplay.traceDescription}} </p>
-      <p> Trace URL : <a href="{{traceUrl}}">{{traceUrl}}</a> </p>
-      <p> Obsel count : {{_mainInfoDisplay.obselCount}} </p>
-      <p> Min time : {{_mainInfoDisplay.minTime}} </p>
-      <p> Max time : {{_mainInfoDisplay.maxTime}} </p>
-      <p> Duration : {{_mainInfoDisplay.duration}} </p>
-      <!--
-
-      -->
-      <!--
-        <taaabs-trace-timeline id="t3" obsels="{{_obsels}}" format="DATE" style-template="[[traceStyleSheet]]" grad="{{_grad}}" style="width: 100%">
-        </taaabs-trace-timeline>
-        <taaabs-trace-timeline-scroller id="t3s" format="DATE" grad="{{_grad}}" style="width: 100%">
-        </taaabs-trace-timeline-scroller>
-      -->
-    </div>
-
-    <div id="timeline" style="width: 100%">
-      <taaabs-trace-timeline-container id="timeline-container" language="en"></taaabs-trace-timeline-container>
-    </div>
-
-    <taaabs-model-simpleview id="tmsv" model=[[_model]]></taaabs-model-simpleview>
-
-    <taaabs-obsel-simpleview id="tosv" obsel=[[_focusedObsel]]></taaabs-obsel-simpleview>
-
-    <taaabs-tts-editor id="stylesheet-editor"></taaabs-tts-editor>
-
-    <taaabs-trace-timeline-stylesheet id="timeline-stylesheet" model=[[_model]]></taaabs-trace-timeline-stylesheet>
 
     <paper-toast class="fit-bottom" id="__notify_toast__" duration=0> </paper-toast>
 
@@ -250,64 +333,6 @@
       ready: function() {},
 
       attached: function() {
-        // Golden-layout config
-        var config = {
-          type: 'row',
-          content: [{
-            type: 'column',
-            width: 80,
-            content: [{
-              type: 'stack',
-              content: [{
-                  type: 'component',
-                  componentName: 'trace-info',
-                  componentState: {},
-                },
-                {
-                  type: 'component',
-                  componentName: 'timeline',
-                  componentState: {},
-                }
-              ],
-              height: 50
-            }, {
-              type: 'row',
-              content: [{
-                type: 'stack',
-                content: [{
-                  type: 'component',
-                  componentName: 'model_view',
-                  componentState: {}
-                },{
-                  type: 'component',
-                  componentName: 'obsel_view',
-                  componentState: {},
-                  width: 40
-                }]
-              }, {
-                type: 'component',
-                componentName: 'style_editor',
-                componentState: {},
-                width: 60
-              }]
-            }]
-          }, {
-            type: 'component',
-            componentName: 'style_view',
-            componentState: {},
-          }]
-        };
-        // Element list
-        var list = {
-          'trace-info': this.$['trace-info'],
-          'timeline': this.$.timeline,
-          'obsel_view': this.$.tosv,
-          'model_view': this.$.tmsv,
-          'style_editor': this.$['stylesheet-editor'],
-          'style_view': this.$['timeline-stylesheet']
-        };
-        // Add the elements to the golden-layout
-        this.$.glc.registerComponents(list, config);
 
         this.$['timeline-container'].$.timeline.addEventListener('selected-obsel', function(evt){
           var o = this.$['timeline-container'].$.timeline.selectedObsel.obsel;
@@ -335,6 +360,21 @@
 
       refresh: function() {
         this._loadTrace();
+      },
+
+      _onModelViewToggle: function(){
+        this.$['model-view'].classList.remove('force-hide');
+        this.$['obsel-view'].classList.add('force-hide');
+        this.$['model-view-toggle'].classList.add('highlighted-toggle');
+        this.$['obsel-view-toggle'].classList.remove('highlighted-toggle');
+      },
+
+      _onObselViewToggle: function(){
+        this.$['obsel-view'].classList.remove('force-hide');
+        this.$['model-view'].classList.add('force-hide');
+        this.$['obsel-view-toggle'].classList.add('highlighted-toggle');
+        this.$['model-view-toggle'].classList.remove('highlighted-toggle');
+
       },
 
       /** ----------------------------------------------------------------------
