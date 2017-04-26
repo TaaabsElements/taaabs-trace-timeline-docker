@@ -604,6 +604,7 @@
        */
       _initTraceTimeline: function() {
         this.$['timeline-container'].refresh();
+        this.$['timeline-container'].set('boundStylesheetComponent', this.$['timeline-stylesheet']);
         this.$['timeline-container'].set('stylesheet', this._currentStylesheet);
       },
 
