@@ -150,14 +150,14 @@
 
               <!-- 1.2.3 -->
               <div id="rule-editor-view" class="swag-scroll" >
-                <taaabs-tts-editor id="stylesheet-editor"></taaabs-tts-editor>
+                <taaabs-tts-editor id="stylesheet-editor" language="[[language]]"></taaabs-tts-editor>
               </div>
             </div>
           </div>
         </div>
         <!-- 2 -->
         <div class="swag-scroll" style="width: 330px; min-width: 330px; max-width: 330px; border-left: solid 1px grey">
-          <taaabs-trace-timeline-stylesheet id="timeline-stylesheet" model=[[_model]]></taaabs-trace-timeline-stylesheet>
+          <taaabs-trace-timeline-stylesheet id="timeline-stylesheet" model=[[_model]] language="[[language]]"></taaabs-trace-timeline-stylesheet>
         </div>
       </div>
     </iron-pages>
@@ -326,6 +326,12 @@
             return new TaaabsTimeUtilities();
           }
         },
+
+        language: {
+          type: String,
+          notify: true,
+          value: 'en'
+        }
       },
 
       behaviors: [NotifyToastBehavior],
@@ -399,7 +405,6 @@
         this.set('_loadingMessage', 'Loading the trace stats...');
         this.$['loading-progress'].set('value', 20);
         // Load the trace stats
-        console.log("trace ready");
         this._loadTraceStats();
       },
 
@@ -416,8 +421,6 @@
           evt.preventDefault();
           this._onTraceReady(evt);
         }.bind(this));
-        // Load the trace
-        console.log("load trace");
         this.$.traceLoader.loadTrace();
       },
 
@@ -438,7 +441,6 @@
         this.set('_loadingMessage', 'Loading the trace model...');
         this.$['loading-progress'].set('value', 40);
         // Load the trace stats
-        console.log("load model");
         this._loadTraceModel();
       },
 
@@ -449,7 +451,6 @@
        */
       _loadTraceStats: function() {
         this._trace.get_stats().then(function(stats) {
-          console.log("loading trace stats");
           this._onTraceStatsReady(stats);
         }.bind(this)).catch(function(err) {
           this.notifyToast('An error occured when loading the trace stats. <br/>' + err, {
@@ -471,7 +472,6 @@
         this.set('_loadingMessage', 'Loading stylesheets...');
         this.$['loading-progress'].set('value', 60);
         // Loads the stylesheets
-        console.log("load stylesheet");
         this._loadStylesheet();
       },
 
@@ -521,7 +521,6 @@
         this.set('_loadingMessage', 'Loading trace analysis components...');
         this.$['loading-progress'].set('value', 80);
         // Loads the stylesheets
-        console.log("load components");
         this._loadComponents();
       },
 
