@@ -13,8 +13,6 @@
 <link rel="import" href="../taaabs-model-simpleview/taaabs-model-simpleview.html">
 <!-- Obsel view -->
 <link rel="import" href="../taaabs-obsel-simpleview/taaabs-obsel-simpleview.html">
-<!-- Golden Docker -->
-<link rel="import" href="../golden-layout-component/golden-layout-component.html">
 <!-- Style -->
 <link rel="import" href="../taaabs-themes/taaabs-theme.html">
 <link rel="import" href="../notify-toast-behavior/notify-toast-behavior.html">
@@ -169,7 +167,7 @@
 
   </template>
   <script>
-    Polymer({
+    TAAABS.TraceTimelineDocker = Polymer({
       is: 'taaabs-trace-timeline-docker',
 
       properties: {
@@ -323,7 +321,7 @@
           type: Object,
           notify: true,
           value: function() {
-            return new TaaabsTimeUtilities();
+            return new TAAABS.TimeUtilities();
           }
         },
 
@@ -364,6 +362,10 @@
 
       },
 
+      clear: function(){
+        this.$['timeline-container'].clear();
+      },
+
       refresh: function() {
         this._loadTrace();
       },
@@ -399,7 +401,7 @@
         this.set('_trace', this.$.traceLoader.getTrace());
 
         this.$['timeline-container'].set('trace', this._trace);
-        this.$['timeline-container'].set('traceUri', this._trace.uri);
+        this.$['timeline-container'].set('traceUrl', this._trace.uri);
 
         // Change the loading status
         this.set('_loadingMessage', 'Loading the trace stats...');
@@ -418,6 +420,7 @@
         this.set('_loadingMessage', 'Loading the trace...');
         // When the trace is loaded, we load the model of the trace.
         this.$.traceLoader.addEventListener('TRACE_READY', function(evt) {
+          console.log(evt);
           evt.preventDefault();
           this._onTraceReady(evt);
         }.bind(this));
