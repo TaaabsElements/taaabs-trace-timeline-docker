@@ -29,7 +29,6 @@
     "taaabs-trace-timeline-stylesheet":"TaaabsElements/taaabs-trace-timeline-stylesheet",
     "taaabs-model-simpleview":"TaaabsElements/taaabs-model-simpleview",
     "taaabs-obsel-simpleview":"TaaabsElements/taaabs-obsel-simpleview",
-    "golden-layout-component":"https://github.com/Yepikae/golden-layout-component.git",
     "taaabs-themes":"TaaabsElements/taaabs-themes"
   },
   "devDependencies": {
